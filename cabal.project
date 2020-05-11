@@ -1,0 +1,6 @@
+source-repository-package
+  type: git
+  location: git://github.com/jsoo1/xml-types-xmlbf.git
+  branch: 7134425d927b1ad5596a431ce0a6fe59230f6232
+
+packages: ./feed-xmlbf.cabal
