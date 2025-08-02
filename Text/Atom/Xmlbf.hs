@@ -12,7 +12,7 @@ import qualified Data.HashMap.Strict as HashMap
 import Data.Maybe (fromMaybe)
 import qualified Data.Text as Text
 import Data.Text (Text)
-import Data.Text.Lazy (fromStrict, toStrict)
+import Data.Text.Lazy (toStrict)
 import qualified Data.Text.Lazy as Text.Lazy
 import qualified Data.XML.Types as Data.XML
 import Data.XML.Types.Xmlbf ()
@@ -25,16 +25,16 @@ import Xmlbf (ToXml (..))
 instance ToXml Atom.Feed where
   toXml Atom.Feed {..} =
     Xml.element "feed" [("xmlns", Atom.atomNS), ("xmlns:thr", Atom.atomThreadNS)] $
-      Xml.element "id" [] (Xml.text (fromStrict feedId))
+      Xml.element "id" [] (Xml.text feedId)
         <> xmlTextContent "title" feedTitle
-        <> Xml.element "updated" [] (Xml.text (fromStrict feedUpdated))
+        <> Xml.element "updated" [] (Xml.text feedUpdated)
         <> (toXml =<< feedLinks)
         <> (Xml.element "author" [] . toXml =<< feedAuthors)
         <> (toXml =<< feedCategories)
         <> (Xml.element "contributor" [] . toXml =<< feedContributors)
         <> maybe [] toXml feedGenerator
-        <> maybe [] (Xml.element "icon" [] . Xml.text . fromStrict) feedIcon
-        <> maybe [] (Xml.element "logo" [] . Xml.text . fromStrict) feedLogo
+        <> maybe [] (Xml.element "icon" [] . Xml.text) feedIcon
+        <> maybe [] (Xml.element "logo" [] . Xml.text) feedLogo
         <> maybe [] (xmlTextContent "rights") feedRights
         <> maybe [] (xmlTextContent "subtitle") feedSubtitle
         <> (toXml =<< feedEntries)
@@ -43,9 +43,9 @@ instance ToXml Atom.Feed where
 xmlTextContent :: Text -> Atom.TextContent -> [Xml.Node]
 xmlTextContent name = \case
   Atom.TextString s ->
-    Xml.element name [("type", "text")] $ Xml.text $ fromStrict s
+    Xml.element name [("type", "text")] $ Xml.text s
   Atom.HTMLString s ->
-    Xml.element name [("type", "html")] $ Xml.text $ fromStrict s
+    Xml.element name [("type", "html")] $ Xml.text s
   Atom.XHTMLString e ->
     Xml.element name [("type", "xhtml")] $ toXml e
 
@@ -68,9 +68,9 @@ xmlAuthor =
 
 instance ToXml Atom.Person where
   toXml Atom.Person {..} =
-    Xml.element "name" mempty (Xml.text (fromStrict personName))
-      <> maybe [] (Xml.element "uri" [] . Xml.text . fromStrict) personURI
-      <> maybe [] (Xml.element "email" [] . Xml.text . fromStrict) personEmail
+    Xml.element "name" mempty (Xml.text personName)
+      <> maybe [] (Xml.element "uri" [] . Xml.text) personURI
+      <> maybe [] (Xml.element "email" [] . Xml.text) personEmail
       <> (toXml =<< personOther)
 
 instance ToXml Atom.Category where
@@ -85,8 +85,7 @@ instance ToXml Atom.Category where
 instance Xml.ToXml Atom.Generator where
   toXml Atom.Generator {..} =
     Xml.element "generator" (HashMap.fromList attrs)
-      $ Xml.text
-      $ fromStrict genText
+      $ Xml.text genText
     where
       attrs =
         maybe [] (pure . ("uri",)) genURI
@@ -95,15 +94,15 @@ instance Xml.ToXml Atom.Generator where
 instance Xml.ToXml Atom.Entry where
   toXml Atom.Entry {..} =
     Xml.element "entry" (HashMap.fromList attrs) $
-      Xml.element "id" [] (Xml.text (fromStrict entryId))
+      Xml.element "id" [] (Xml.text entryId)
         <> xmlTextContent "title" entryTitle
-        <> Xml.element "updated" [] (Xml.text (fromStrict entryUpdated))
+        <> Xml.element "updated" [] (Xml.text entryUpdated)
         <> (Xml.element "author" [] . toXml =<< entryAuthors)
         <> (toXml =<< entryCategories)
         <> maybe [] toXml entryContent
         <> (Xml.element "contributor" [] . toXml =<< entryContributor)
         <> (toXml =<< entryLinks)
-        <> maybe [] (Xml.element "published" [] . Xml.text . fromStrict) entryPublished
+        <> maybe [] (Xml.element "published" [] . Xml.text) entryPublished
         <> maybe [] (xmlTextContent "rights") entryRights
         <> maybe [] toXml entrySource
         <> maybe [] (xmlTextContent "summary") entrySummary
@@ -116,9 +115,9 @@ instance Xml.ToXml Atom.Entry where
 instance Xml.ToXml Atom.EntryContent where
   toXml = \case
     Atom.TextContent t ->
-      Xml.element "content" [("type", "text")] $ Xml.text $ fromStrict t
+      Xml.element "content" [("type", "text")] $ Xml.text t
     Atom.HTMLContent t ->
-      Xml.element "content" [("type", "html")] $ Xml.text $ fromStrict t
+      Xml.element "content" [("type", "html")] $ Xml.text t
     Atom.XHTMLContent x ->
       Xml.element "content" [("type", "xhtml")] $ toXml x
     Atom.MixedContent ty cs ->
@@ -135,14 +134,14 @@ instance Xml.ToXml Atom.Source where
         <> (Xml.element "author" [] . toXml =<< sourceAuthors)
         <> (toXml =<< sourceCategories)
         <> maybe [] toXml sourceGenerator
-        <> maybe [] (Xml.element "icon" [] . Xml.text . fromStrict) sourceIcon
-        <> maybe [] (Xml.element "id" [] . Xml.text . fromStrict) sourceId
+        <> maybe [] (Xml.element "icon" [] . Xml.text) sourceIcon
+        <> maybe [] (Xml.element "id" [] . Xml.text) sourceId
         <> (toXml =<< sourceLinks)
-        <> maybe [] (Xml.element "logo" [] . Xml.text . fromStrict) sourceLogo
+        <> maybe [] (Xml.element "logo" [] . Xml.text) sourceLogo
         <> maybe [] (xmlTextContent "rights") sourceRights
         <> maybe [] (xmlTextContent "subtitle") sourceSubtitle
         <> maybe [] (xmlTextContent "title") sourceTitle
-        <> maybe [] (Xml.element "updated" [] . Xml.text . fromStrict) sourceUpdated
+        <> maybe [] (Xml.element "updated" [] . Xml.text) sourceUpdated
 
 instance Xml.ToXml Atom.InReplyTo where
   toXml Atom.InReplyTo {..} =
@@ -160,7 +159,7 @@ instance Xml.ToXml Atom.InReplyTotal where
   toXml Atom.InReplyTotal {..} =
     Xml.element "thr:total" (HashMap.fromList attrs)
       $ Xml.text
-      $ Text.Lazy.pack
+      $ Text.pack
       $ show replyToTotal
     where
       attrs = XMLInstances.xmlbfAttr <$> replyToTotalOther
